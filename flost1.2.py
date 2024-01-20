@@ -28,7 +28,7 @@ class flost():
         index = {}
         flag = self.querytype(qt)
         if(flag):
-            self.db.execute('select MainTag,Fouunid from FOUND')
+            self.db.execute('select MainTag,Foundid from FOUND')
         else:
             self.db.execute('select MainTag,Lostid from LOST')
         # print(self.db)
