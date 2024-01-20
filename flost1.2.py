@@ -18,9 +18,19 @@ class flost():
 
         # print(self.db.readlines())
 
-    def index_words(self):
+    def querytype(self,qtype):
+        qtype=qtype.lower()
+        if(qtype in ['f','found']):
+            return 1  #------------------------>found query
+        return 0 #----------------------------->lost query
+
+    def index_words(self,qt):
         index = {}
-        self.db.execute('select MainTag,Lostid from LOST')
+        flag = self.querytype(qt)
+        if(flag):
+            self.db.execute('select MainTag,Fouunid from FOUND')
+        else:
+            self.db.execute('select MainTag,Lostid from LOST')
         # print(self.db)
         for item in self.db:
             # print(index)
@@ -71,17 +81,16 @@ class flost():
                 results[word] = index[word]
         return results
 
-    def getItems(self,query):
-        F_index = self.index_words()
+    def getItems(self,query,qt):
+        F_index = self.index_words(qt)
         F_index = self.remove_stop_words(F_index)
         F_index = self.stemmer(F_index)
         results = self.search(query,F_index)
         return results
     
-    def listing(self,query): # dictionary inverter function
-
+    def listing(self,query,qt): # dictionary inverter function
         listing = {}
-        matches = self.getItems(query)
+        matches = self.getItems(query,qt)
         for item,pids in matches.items():
             for pid in pids:
                 if pid not in listing:
@@ -97,6 +106,7 @@ class flost():
 import mysql.connector
 
 query = "laptop asus rog inegrated"
+qt='found'
 
 mydb = mysql.connector.connect(
     host="localhost",
@@ -108,9 +118,9 @@ mydb = mysql.connector.connect(
 mycursor = mydb.cursor()
 
 fl = flost(mycursor)
-matches = fl.getItems(query)
+matches = fl.getItems(query,qt)
 print(matches)
-listing  = fl.listing(query)
+listing  = fl.listing(query,qt)
 print(listing)
 
 # %%
