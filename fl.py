@@ -1,5 +1,5 @@
-from flask import Flask,render_template,jsonify,request,json,redirect
-from flask import send_from_directory
+from flask import Flask,render_template,jsonify,request,redirect
+from flask import send_from_directory,json
 import mysql.connector
 import os
 from werkzeug.utils import secure_filename
@@ -32,7 +32,7 @@ def reverseConvertdata(binary_data,output_filename):
     with open(output_filename, 'wb') as file:
         file.write(binary_data)
         
-
+flag=0
         
 count=0
 mycursor.execute('select max(Lostid) from LOST')
@@ -103,26 +103,30 @@ def app_lost():
     mydb.commit()
     count+=1
 
-    # files = glob.glob('renders/*')
-    # for f in files:
-    #     os.remove(f)
+
 
     query = description
     qt='f'
 
     listing = fl.listing(query,qt)
+    keys=[]
     data = []
     pics=[]
     for x in listing:
         mycursor.execute("SELECT Foundid,Maintag,Photo FROM FOUND WHERE Foundid = %s"%(x))
         for y in mycursor:
-            # print(y)
+            keys.append(y[0])
             data.append(y[1])
             fpath='./renders/%s.jpg'%(x)
             reverseConvertdata(y[2],fpath)
             pics.append("/renders/%s.jpg"%(x))
+    
+
+    files = glob.glob('uploads/*')
+    for f in files:
+        os.remove(f)
             
-    return render_template("listings.html",entries=list(zip(data,pics)))
+    return render_template("listings.html",entries=list(zip(keys,data,pics)))
     
 
 @app.route("/found",methods=['POST'])
@@ -151,12 +155,34 @@ def app_found():
     mycursor.execute(insert_queryFound,data_insert)
     mydb.commit()
     count2+=1
-    return "<h1> Thankyou for your service! </h1>"
 
-# @app.route("/match",method=['POST','GET'])
-# def claimItem():
+    files = glob.glob('uploads/*')
+    for f in files:
+       os.remove(f)
 
+    query = description
+    qt='l'
 
+    listing = fl.listing(query,qt)
+    data = []
+    pics=[]
+    keys=[]
+    for x in listing:
+        mycursor.execute("SELECT Lostid,DeviceName,Photo FROM LOST WHERE Lostid = %s"%(x))
+        for y in mycursor:
+            keys.append(y[0])
+            data.append(y[1])
+            fpath='./renders/%s.jpg'%(x)
+            reverseConvertdata(y[2],fpath)
+            pics.append("/renders/%s.jpg"%(x))
+
+            
+    return render_template("end.html",entries=list(zip(keys,data,pics)))
+    
+@app.route("/claim", methods=['GET'])
+def matchmade():
+    # mt = request.
+    pass
 
 if __name__ == "__main__":
     app.run(debug=True)
