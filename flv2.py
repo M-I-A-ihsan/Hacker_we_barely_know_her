@@ -3,7 +3,8 @@ import mysql.connector
 import os
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadRequestKeyError
-
+from flost import flost
+import glob
 
 mydb = mysql.connector.connect(
     host="localhost",
@@ -44,7 +45,7 @@ for x in mycursor:
     if x[0]!=None:
         count2=x[0]+1
 
-
+fl=flost(mycursor)
 app=Flask(__name__)
 app.config['UPLOAD_FOLDER']="/home/autrio/college-linx/project/Hackiiit/Hacker_we_barely_know_her/uploads"
 
@@ -93,7 +94,21 @@ def app_lost():
     mycursor.execute(insert_queryLost,data_insert)
     mydb.commit()
     count+=1
-    return "<h1> successful </h1>"
+    files = glob.glob('/home/nitin/Desktop/hack/sql/renders/*')
+    for f in files:
+        os.remove(f)
+    query=description
+    qt="found"
+    listing=fl.listing(query,qt)
+    for x in listing.keys():
+        query="select Photo from FOUND where Foundid = %s"%(x)
+        mycursor.execute(query)
+        count3=0
+        for y in mycursor:
+            count3+=1
+            reverseConvertdata(y[0],'/home/nitin/Desktop/hack/sql/renders/%s.jpg'%(count3))
+
+    return "<h1> success </h1>"
     
 
 @app.route("/found",methods=['POST'])
