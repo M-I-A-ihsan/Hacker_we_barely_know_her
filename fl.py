@@ -104,10 +104,8 @@ def app_lost():
     for x in listing.keys():
         query="select Photo from FOUND where Foundid = %s"%(x)
         mycursor.execute(query)
-        count3=0
         for y in mycursor:
-            count3+=1
-            reverseConvertdata(y[0],'renders/%s.jpg'%(count3))
+            reverseConvertdata(y[0],'renders/%s.jpg'%(x))
 
     data = []
     for x in listing:
