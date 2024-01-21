@@ -100,8 +100,17 @@ def app_lost():
     qt='f'
 
     listing = fl.listing(query,qt)
+    # print(listing)
 
-    return render_template("listings.html",entries=listing)
+    data = []
+    for x in listing:
+        mycursor.execute("SELECT Foundid,Maintag FROM FOUND WHERE Foundid = %s"%(x))
+        for y in mycursor:
+            print(y)
+            data.append(y[1])
+
+
+    return render_template("listings.html",entries=data)
     
 
 @app.route("/found",methods=['POST'])
