@@ -29,10 +29,22 @@ def convertdata(filename):
 def reverseConvertdata(binary_data,output_filename):
     with open(output_filename, 'wb') as file:
         file.write(binary_data)
+        
 
         
 count=0
+mycursor.execute('select max(Lostid) from LOST')
+for x in mycursor:
+    if x[0]!=None:
+        count=x[0]+1
+
 count2=0
+mycursor.execute('select max(Foundid) from FOUND')
+for x in mycursor:
+    if x[0]!=None:
+        count2=x[0]+1
+
+
 app=Flask(__name__)
 app.config['UPLOAD_FOLDER']="/home/autrio/college-linx/project/Hackiiit/Hacker_we_barely_know_her/uploads"
 
@@ -59,21 +71,25 @@ def app_lost():
     try:
         photo = request.files['photo']
 
-        if photo.filename == '':
-            return "<h1>No selected file</h1>"
+        if photo.filename != '':
+            # return "<h1>No selected file</h1>"
 
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-        filename = secure_filename(photo.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        photo.save(filepath)
-        print(filepath)
+            filename = secure_filename(photo.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            photo.save(filepath)
+            print(filepath)
+            img=convertdata(filepath)
     except BadRequestKeyError:
         return "<h1>No file part in the request</h1>"
 
-    img=convertdata(filepath)
+    # img=convertdata(filepath)
 
-    data_insert=(count,1234,description,date,location)
+    clientIP = request.remote_addr
+    print(clientIP)
+
+    data_insert=(count,clientIP,description,date,location)
     mycursor.execute(insert_queryLost,data_insert)
     mydb.commit()
     count+=1
