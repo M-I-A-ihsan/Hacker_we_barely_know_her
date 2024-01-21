@@ -95,24 +95,24 @@ def app_lost():
     mycursor.execute(insert_queryLost,data_insert)
     mydb.commit()
     count+=1
+
     files = glob.glob('renders/*')
     for f in files:
         os.remove(f)
+
     query=description
     qt="found"
     listing=fl.listing(query,qt)
-    for x in listing.keys():
-        query="select Photo from FOUND where Foundid = %s"%(x)
-        mycursor.execute(query)
-        for y in mycursor:
-            reverseConvertdata(y[0],'renders/%s.jpg'%(x))
+
 
     data = []
     for x in listing:
-        mycursor.execute("SELECT Foundid,Maintag FROM FOUND WHERE Foundid = %s"%(x))
+        mycursor.execute("SELECT Foundid,Maintag,Photo FROM FOUND WHERE Foundid = %s"%(x))
         for y in mycursor:
             print(y)
             data.append(y[1])
+            reverseConvertdata(y[2],'/home/autrio/college-linx/project/Hackiiit/test/renders/%s.jpg'%(x))
+
 
     return render_template("listings.html",entries=data)
     
