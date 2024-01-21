@@ -1,10 +1,10 @@
 from flask import Flask,render_template,jsonify,request,json,redirect
-from flost import flost
 import mysql.connector
 import os
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadRequestKeyError
-
+from flost import flost
+import glob
 
 mydb = mysql.connector.connect(
     host="localhost",
@@ -14,7 +14,7 @@ mydb = mysql.connector.connect(
 )
 
 mycursor = mydb.cursor()
-insert_queryLost="insert into LOST(Lostid, DeviceName,MainTag,Date,Location) values (%s,%s,%s,%s,%s)"
+insert_queryLost="insert into LOST(Lostid, DeviceName,MainTag,Date,Location,Photo) values (%s,%s,%s,%s,%s,%s)"
 insert_queryFound= "INSERT INTO FOUND (Foundid, Photo, Maintag, Location) VALUES (%s, %s, %s, %s)"
 def convertdata(filename):
     with open(filename, 'rb') as file:
@@ -45,10 +45,9 @@ for x in mycursor:
     if x[0]!=None:
         count2=x[0]+1
 
-fl = flost(mycursor)
-
+fl=flost(mycursor)
 app=Flask(__name__)
-app.config['UPLOAD_FOLDER']="/home/autrio/college-linx/project/Hackiiit/Hacker_we_barely_know_her/uploads"
+app.config['UPLOAD_FOLDER']="uploads"
 
 @app.route("/")
 def hello() -> str:
@@ -69,7 +68,8 @@ def app_lost():
     date=request.form.get('date')
     location=request.form.get('location')
     description=request.form.get('description')
-
+    img = " "
+    
     try:
         photo = request.files['photo']
 
@@ -91,16 +91,23 @@ def app_lost():
     clientIP = request.remote_addr
     print(clientIP)
 
-    data_insert=(count,clientIP,description,date,location)
+    data_insert=(count,clientIP,description,date,location,img)
     mycursor.execute(insert_queryLost,data_insert)
     mydb.commit()
     count+=1
-
-    query = description
-    qt='f'
-
-    listing = fl.listing(query,qt)
-    # print(listing)
+    files = glob.glob('renders/*')
+    for f in files:
+        os.remove(f)
+    query=description
+    qt="found"
+    listing=fl.listing(query,qt)
+    for x in listing.keys():
+        query="select Photo from FOUND where Foundid = %s"%(x)
+        mycursor.execute(query)
+        count3=0
+        for y in mycursor:
+            count3+=1
+            reverseConvertdata(y[0],'renders/%s.jpg'%(count3))
 
     data = []
     for x in listing:
@@ -108,7 +115,6 @@ def app_lost():
         for y in mycursor:
             print(y)
             data.append(y[1])
-
 
     return render_template("listings.html",entries=data)
     
@@ -132,7 +138,7 @@ def app_found():
         photo.save(filepath)
         print(filepath)
     except BadRequestKeyError:
-        return render_template()
+        return "<h1>No file part in the request</h1>"
 
     img=convertdata(filepath)
     data_insert=(count2,img,description,location)
@@ -140,7 +146,6 @@ def app_found():
     mydb.commit()
     count2+=1
     return "<h1> Thankyou for your service! </h1>"
-
 
 
 if __name__ == "__main__":
