@@ -34,7 +34,7 @@ def reverseConvertdata(binary_data,output_filename):
 count=0
 count2=0
 app=Flask(__name__)
-app.config['UPLOAD_FOLDER']="/home/nitin/Desktop/hack/sql/uploads"
+app.config['UPLOAD_FOLDER']="/home/autrio/college-linx/project/Hackiiit/Hacker_we_barely_know_her/uploads"
 
 @app.route("/")
 def hello() -> str:
