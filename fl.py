@@ -1,5 +1,9 @@
 from flask import Flask,render_template,jsonify,request,json,redirect
 import mysql.connector
+import os
+from werkzeug.utils import secure_filename
+from werkzeug.exceptions import BadRequestKeyError
+
 
 mydb = mysql.connector.connect(
     host="localhost",
@@ -11,10 +15,26 @@ mydb = mysql.connector.connect(
 mycursor = mydb.cursor()
 insert_queryLost="insert into LOST(Lostid, DeviceName,MainTag,Date,Location) values (%s,%s,%s,%s,%s)"
 insert_queryFound= "INSERT INTO FOUND (Foundid, Photo, Maintag, Location) VALUES (%s, %s, %s, %s)"
+def convertdata(filename):
+    with open(filename, 'rb') as file:
+        binary_data = file.read()
 
-count=10
-count2=12
+    # Ensure the length of the binary data is within the allowed limit for the 'BLOB' column
+    if len(binary_data) > 65535:  # Adjust this limit based on your actual column size
+        raise ValueError("Binary data exceeds maximum allowed length for 'BLOB' column")
+
+    return binary_data
+
+
+def reverseConvertdata(binary_data,output_filename):
+    with open(output_filename, 'wb') as file:
+        file.write(binary_data)
+
+        
+count=0
+count2=0
 app=Flask(__name__)
+app.config['UPLOAD_FOLDER']="/home/nitin/Desktop/hack/sql/uploads"
 
 @app.route("/")
 def hello() -> str:
@@ -35,7 +55,24 @@ def app_lost():
     date=request.form.get('date')
     location=request.form.get('location')
     description=request.form.get('description')
-    photo=request.form.get('photo')
+
+    try:
+        photo = request.files['photo']
+
+        if photo.filename == '':
+            return "<h1>No selected file</h1>"
+
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+        filename = secure_filename(photo.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        photo.save(filepath)
+        print(filepath)
+    except BadRequestKeyError:
+        return "<h1>No file part in the request</h1>"
+
+    img=convertdata(filepath)
+
     data_insert=(count,1234,description,date,location)
     mycursor.execute(insert_queryLost,data_insert)
     mydb.commit()
@@ -49,8 +86,23 @@ def app_found():
     date=request.form.get('date')
     location=request.form.get('location')
     description=request.form.get('description')
-    photo=request.form.get('photo')
-    data_insert=(count2,photo,description,location)
+    try:
+        photo = request.files['photo']
+
+        if photo.filename == '':
+            return "<h1>No selected file</h1>"
+
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+        filename = secure_filename(photo.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        photo.save(filepath)
+        print(filepath)
+    except BadRequestKeyError:
+        return "<h1>No file part in the request</h1>"
+
+    img=convertdata(filepath)
+    data_insert=(count2,img,description,location)
     mycursor.execute(insert_queryFound,data_insert)
     mydb.commit()
     count2+=1
