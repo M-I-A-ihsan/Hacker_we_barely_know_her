@@ -179,10 +179,11 @@ def app_found():
             
     return render_template("end.html",entries=list(zip(keys,data,pics)))
     
-@app.route("/claim", methods=['GET'])
+@app.route("/claim", methods=['POST'])
 def matchmade():
-    # mt = request.
-    pass
+        key=request.form.get('keyyy')
+        print(key)
+        return "<h1>TEST</h1>"
 
 if __name__ == "__main__":
     app.run(debug=True)
