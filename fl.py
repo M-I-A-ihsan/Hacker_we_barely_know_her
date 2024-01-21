@@ -1,4 +1,5 @@
 from flask import Flask,render_template,jsonify,request,json,redirect
+from flask import send_from_directory
 import mysql.connector
 import os
 from werkzeug.utils import secure_filename
@@ -46,8 +47,9 @@ for x in mycursor:
         count2=x[0]+1
 
 fl=flost(mycursor)
-app=Flask(__name__)
+app=Flask(__name__,static_url_path='/static')
 app.config['UPLOAD_FOLDER']="uploads"
+
 
 @app.route("/")
 def hello() -> str:
@@ -60,6 +62,11 @@ def redirL():
 @app.route("/FormFound.html",methods=['GET'])
 def redirF():
     return render_template("FormFound.html")
+
+@app.route("/renders/<path:path>")
+def send_report(path):
+    # print(path)
+    return send_from_directory('./renders',path)
 
 
 @app.route("/lost",methods=['POST'])
@@ -96,25 +103,26 @@ def app_lost():
     mydb.commit()
     count+=1
 
-    files = glob.glob('renders/*')
-    for f in files:
-        os.remove(f)
+    # files = glob.glob('renders/*')
+    # for f in files:
+    #     os.remove(f)
 
-    query=description
-    qt="found"
-    listing=fl.listing(query,qt)
+    query = description
+    qt='f'
 
-
+    listing = fl.listing(query,qt)
     data = []
+    pics=[]
     for x in listing:
         mycursor.execute("SELECT Foundid,Maintag,Photo FROM FOUND WHERE Foundid = %s"%(x))
         for y in mycursor:
-            print(y)
+            # print(y)
             data.append(y[1])
-            reverseConvertdata(y[2],'/home/autrio/college-linx/project/Hackiiit/test/renders/%s.jpg'%(x))
-
-
-    return render_template("listings.html",entries=data)
+            fpath='./renders/%s.jpg'%(x)
+            reverseConvertdata(y[2],fpath)
+            pics.append("/renders/%s.jpg"%(x))
+            
+    return render_template("listings.html",entries=list(zip(data,pics)))
     
 
 @app.route("/found",methods=['POST'])

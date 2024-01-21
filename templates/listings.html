@@ -10,9 +10,10 @@
         Item That May Be Yours:
     </h1>
     <ol>
-        {% for entry in entries%}
-        <li>{{ entry }}</li>
+        {% for entry,image in entries %}
+        <li>{{entry}} <img src={{image}} width=100 height=100></li>
         {% endfor %}
     </ol>
+    
 </body>
 </html>
