@@ -20,7 +20,7 @@ class flost():
 
     def querytype(self,qtype):
         qtype=qtype.lower()
-        if(qtype in ['f','found']):
+        if(qtype in ['f','found']): 
             return 1  #------------------------>found query
         return 0 #----------------------------->lost query
 
