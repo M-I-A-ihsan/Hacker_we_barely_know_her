@@ -51,7 +51,7 @@ app=Flask(__name__,static_url_path='/static')
 app.config['UPLOAD_FOLDER']="uploads"
 
 
-@app.route("/")
+@app.route("/",methods=['GET'])
 def hello() -> str:
     return render_template("HomePage.html")
 
