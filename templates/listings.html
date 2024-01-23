@@ -1,49 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listings!</title>
+    <title>listings!</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            background-color: #f7f7f7;
-            text-align: center; /* Center-align text in the body */
+        .container {
+            display: block;
+            height: 100%;
+            width: 100%;
+            padding: 20vh;
         }
 
-        h1 {
-            color: #333;
-        }
-
-        ol {
-            list-style-type: none;
-            padding: 0;
-            text-align: left; /* Left-align the list items */
-        }
-
-        li {
-            margin-bottom: 10px;
-            display: flex; /* Use flexbox for layout */
-            align-items: center; /* Center-align items vertically */
-        }
-
-        img {
-            margin-left: 10px;
-            border: 1px solid #ccc;
+        .slide {
+            display: inline-flex;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
+
 <body>
+    <div class="container">
+        <h1>Here are the items that look familiar...</h1>
+        <form action="http://127.0.0.1:5000/claim" method="post">
+            {% for key, entry, image in entries %}
+            <li>{{entry}} <img src={{image}} width=100 height=100></li>
+            <div id="{{image}}" style="display: block;">
+                <p>Do you want to claim this item?</p>
+                <input type="radio" class="confirmation" value="Yes" id="yes" name={{key}}>
+                <input type="hidden" value = {{key}} name="ignore"+"{{keyy}}">
+                <label for="yes">Yes</label>
+            </div>
+            <div>
+                <input type="radio" class="confirmation" value="No" id="no">
+                <label for="no">No</label>
+            </div>
+            {% endfor %}
+            <button>submit</button><br><br>
+            <label for="rollno">Roll Number:</label><br>
+            <input type="number" id="rollno" name="rollno" required><br>
+        </form>
+    </div>
+    <!-- <script>
+        function displayRadioValue() {
+            var keys = [];
+            var ele = document.getElementsByClassName('confirmation');
 
-    <h1>Item That May Be Yours:</h1>
-    
-    <ol>
-        {% for entry, image in entries %}
-            <li>{{ entry }} <img src={{image}} width="100" height="100"></li>
-        {% endfor %}
-    </ol>
+            for (var i = 0; i < ele.length; i++) {
+                if (ele[i].type === "radio" && ele[i].checked) {
+                    var nameAttribute = ele[i].name;
+                    var temp = {
+                        index: nameAttribute,
+                        value: nameAttribute
+                    };
+                    keys.push(temp);
+                    console.log(keys);
+                }
+            }
+            var jdata = JSON.stringify(keys);
+            console.log(jdata);
 
+            $.ajax({
+                url: "/claim",
+                type: 'POST',
+                contentType: 'application/json',
+                data: jdata,
+                dataType: 'json',
+                success: function (response) {
+                    // Handle success
+                    console.log(response);
+                },
+                error: function (response) {
+                    // Handle error
+                    console.error(response);
+                }
+            });
+        }
+    </script> -->
 </body>
+
 </html>

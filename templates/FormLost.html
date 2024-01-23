@@ -3,7 +3,9 @@
     <html>
 
     <head>
-      <title>FOUND PAGE</title>
+      <title>LOST PAGE</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <link rel="stylesheet" href="website.css">
       <style>
         body {
@@ -85,6 +87,8 @@
         <form action ="http://127.0.0.1:5000/lost" method="post" enctype="multipart/form-data">
             <label for="date">Date:</label><br>
             <input type="date" id="date" name="date" required><br>
+            <label for="rollno">Roll Number:</label><br>
+            <input type="number" id="rollno" name="rollno" required><br>
             <label for="location">location:</label><br>
             <input type="text" id="location" name="location" required><br>
             <label for="description">description:</label><br>

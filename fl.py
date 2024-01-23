@@ -15,7 +15,7 @@ mydb = mysql.connector.connect(
 )
 
 mycursor = mydb.cursor()
-insert_queryLost="insert into LOST(Lostid, DeviceName,MainTag,Date,Location,Photo) values (%s,%s,%s,%s,%s,%s)"
+insert_queryLost="insert into LOST(Lostid, DeviceName,MainTag,Date,Location,Photo,RollNo) values (%s,%s,%s,%s,%s,%s,%s)"
 insert_queryFound= "INSERT INTO FOUND (Foundid, Photo, Maintag, Location) VALUES (%s, %s, %s, %s)"
 def convertdata(filename):
     with open(filename, 'rb') as file:
@@ -32,8 +32,8 @@ def reverseConvertdata(binary_data,output_filename):
     with open(output_filename, 'wb') as file:
         file.write(binary_data)
         
-flag=0
-        
+devId = []
+
 count=0
 mycursor.execute('select max(Lostid) from LOST')
 for x in mycursor:
@@ -76,7 +76,8 @@ def app_lost():
     location=request.form.get('location')
     description=request.form.get('description')
     img = " "
-    
+    rollno = request.form.get('rollno')
+    print(rollno)    
     try:
         photo = request.files['photo']
 
@@ -94,11 +95,13 @@ def app_lost():
         return "<h1>No file part in the request</h1>"
 
     # img=convertdata(filepath)
-
+    # devId = []
     clientIP = request.remote_addr
+    devId.append(clientIP)
     print(clientIP)
 
-    data_insert=(count,clientIP,description,date,location,img)
+    data_insert=(count,clientIP,description,date,location,img,rollno)
+    print(data_insert)
     mycursor.execute(insert_queryLost,data_insert)
     mydb.commit()
     count+=1
@@ -179,10 +182,36 @@ def app_found():
             
     return render_template("end.html",entries=list(zip(keys,data,pics)))
     
-@app.route("/claim", methods=['GET'])
+@app.route("/claim", methods=['POST'])
 def matchmade():
-    # mt = request.
-    pass
+    # data = request.get_json()
+    # # key = data.get('key', None)
+    # # key = request.form.get('data')
+    # print(data)
+    data = []
+    # # Process the key as needed and prepare a JSON response
+    for x in request.form:
+        if(x!="ignore" and x!="rollno"):
+            data.append(x)
+    # response_data = {'status': 'success', 'message': 'Claim successful', "key" : data}
+    print(data)
+    if data!=[]:
+        for key in data:
+            mycursor.execute("delete from FOUND where Foundid = %s"%(key))
+            mydb.commit()
+    
+    files = glob.glob('renders/*')
+    for f in files:
+        os.remove(f)
+
+    rollno = request.form.get('rollno')
+    print(rollno)
+
+    mycursor.execute("delete from LOST where RollNo = %s"%(rollno))
+    mydb.commit()
+
+
+    return render_template("HomePage.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
