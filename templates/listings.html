@@ -1,68 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>listings!</title>
-    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <style>
         .container {
-        display: block;
-        height: 100%;
-        width: 100%;
-        padding:20vh;
-        }  
-
-        .slide {
-        display: inline-flex;
-        width:100%;
-        height:100%;
+            display: block;
+            height: 100%;
+            width: 100%;
+            padding: 20vh;
         }
 
-       
+        .slide {
+            display: inline-flex;
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
-<body> 
+
+<body>
     <div class="container">
         <h1>Here are the items that look familiar...</h1>
         <form action="http://127.0.0.1:5000/claim" method="post">
-        {% for key,entry,image in entries %}
-        <li >{{entry}} <img src={{image}} width=100 height=100></li>
-        <div id = "{{image}}" style="display: block;">
-            <p>Do you want to claim this item?</p>
-            <input type = "radio" class="confirmation" value="Yes" id="yes">
-            <input type="hidden" class={{key}}>
-            <label for="yes">Yes</label>
-            <input type = "radio" class="confirmation" value="No" id="no">
-            <label for="no">No</label>
-        </div>
-        {% endfor %}
-        <button onclick="displayRadioValue(entries)">submit</button>
+            {% for key, entry, image in entries %}
+            <li>{{entry}} <img src={{image}} width=100 height=100></li>
+            <div id="{{image}}" style="display: block;">
+                <p>Do you want to claim this item?</p>
+                <input type="radio" class="confirmation" value="Yes" id="yes" name={{key}}>
+                <input type="hidden" value = {{key}} name="ignore"+"{{keyy}}">
+                <label for="yes">Yes</label>
+            </div>
+            <div>
+                <input type="radio" class="confirmation" value="No" id="no">
+                <label for="no">No</label>
+            </div>
+            {% endfor %}
+            <button>submit</button><br><br>
+            <label for="rollno">Roll Number:</label><br>
+            <input type="number" id="rollno" name="rollno" required><br>
         </form>
-  </div>
-</body>
-<script>
-    function displayRadioValue(entries) {
-        keyy = 0;
-        var ele = document.getElementsByClassName('confirmation');
-        for (i = 0; i < ele.length; i++) {
-            if (ele[i].type = "radio") {
-                if (ele[i].checked){
-                    keyy = entries[i][0];
+    </div>
+    <!-- <script>
+        function displayRadioValue() {
+            var keys = [];
+            var ele = document.getElementsByClassName('confirmation');
+
+            for (var i = 0; i < ele.length; i++) {
+                if (ele[i].type === "radio" && ele[i].checked) {
+                    var nameAttribute = ele[i].name;
+                    var temp = {
+                        index: nameAttribute,
+                        value: nameAttribute
+                    };
+                    keys.push(temp);
+                    console.log(keys);
                 }
+            }
+            var jdata = JSON.stringify(keys);
+            console.log(jdata);
+
+            $.ajax({
+                url: "/claim",
+                type: 'POST',
+                contentType: 'application/json',
+                data: jdata,
+                dataType: 'json',
+                success: function (response) {
+                    // Handle success
+                    console.log(response);
+                },
+                error: function (response) {
+                    // Handle error
+                    console.error(response);
+                }
+            });
         }
-        console.log(keyy);
-        var tt = document.createElement("input");
-        tt.style.display = "none";
-        tt.id = "keyyy";
-        tt.name = "keyyy";
-        tt.type = "text"
-        tt.class = "keyyy";
-        tt.textContent = keyy;
-        return tt;
-    }
-}
-</script>
+    </script> -->
+</body>
 
 </html>
+
