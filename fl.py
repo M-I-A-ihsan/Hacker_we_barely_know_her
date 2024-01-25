@@ -32,6 +32,7 @@ def reverseConvertdata(binary_data,output_filename):
     with open(output_filename, 'wb') as file:
         file.write(binary_data)
         
+
 devId = []
 
 count=0
@@ -184,6 +185,7 @@ def app_found():
     
 @app.route("/claim", methods=['POST'])
 def matchmade():
+
     # data = request.get_json()
     # # key = data.get('key', None)
     # # key = request.form.get('data')
@@ -212,6 +214,7 @@ def matchmade():
 
 
     return render_template("HomePage.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
